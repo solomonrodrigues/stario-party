@@ -1,8 +1,13 @@
 <script lang="ts">
+  import { flip } from 'svelte/animate';
+  import { fly } from 'svelte/transition';
   import { game } from '../stores/game.svelte';
   import { settings } from '../stores/settings.svelte';
-  import Avatar from '../components/Avatar.svelte';
   import Dice from '../components/Dice.svelte';
+  import PlayerCard from '../components/PlayerCard.svelte';
+  import EventLog from '../components/EventLog.svelte';
+
+  let showLog = $state(false);
 
   function handleRoll(value: number) {
     game.recordRoll(value);
@@ -19,6 +24,18 @@
     if (!ok) return;
     game.buyStar(playerId);
   }
+
+  // Active player floats to the front of the list so animate:flip slides
+  // it into place each turn.
+  const orderedPlayers = $derived.by(() => {
+    const list = [...game.players];
+    const idx = game.currentPlayerIndex;
+    if (idx >= 0 && idx < list.length) {
+      const [active] = list.splice(idx, 1);
+      list.unshift(active);
+    }
+    return list;
+  });
 </script>
 
 <section class="board">
@@ -29,30 +46,27 @@
     <h2 class="now-playing">
       {game.currentPlayer?.name ?? '—'}<span class="possessive">'s turn</span>
     </h2>
+    <button
+      class="log-toggle"
+      type="button"
+      aria-pressed={showLog}
+      onclick={() => (showLog = !showLog)}
+    >
+      {showLog ? 'Hide' : 'Show'} log
+    </button>
   </header>
 
   <div class="players">
-    {#each game.players as player, i (player.id)}
-      {@const active = i === game.currentPlayerIndex}
-      {@const canBuy = player.coins >= settings.value.coinsPerStar}
-      <div class="card" class:active style:--accent={player.color}>
-        <Avatar avatar={player.avatar} size={96} ring={active ? player.color : null} />
-        <div class="card-name">{player.name}</div>
-        <div class="stats">
-          <div class="stat coin">
-            <span class="icon" aria-hidden="true">●</span>
-            <span class="value">{player.coins}</span>
-          </div>
-          <div class="stat star">
-            <span class="icon" aria-hidden="true">★</span>
-            <span class="value">{player.stars}</span>
-          </div>
-        </div>
-        {#if active && canBuy}
-          <button class="buy-star" type="button" onclick={() => buyStar(player.id)}>
-            Buy star ({settings.value.coinsPerStar}🪙)
-          </button>
-        {/if}
+    {#each orderedPlayers as player (player.id)}
+      {@const active = player.id === game.currentPlayer?.id}
+      <div animate:flip={{ duration: 380 }} class="player-wrap">
+        <PlayerCard
+          {player}
+          {active}
+          affordableStar={player.coins >= settings.value.coinsPerStar}
+          starCost={settings.value.coinsPerStar}
+          onBuyStar={() => buyStar(player.id)}
+        />
       </div>
     {/each}
   </div>
@@ -69,6 +83,25 @@
       </button>
     {/if}
   </div>
+
+  {#if showLog}
+    <aside class="log-panel" transition:fly={{ x: 360, duration: 280 }}>
+      <header class="log-panel-header">
+        <h3>Event log</h3>
+        <button
+          class="close"
+          type="button"
+          aria-label="Close log"
+          onclick={() => (showLog = false)}
+        >
+          ×
+        </button>
+      </header>
+      <div class="log-panel-body">
+        <EventLog entries={game.log} players={game.players} />
+      </div>
+    </aside>
+  {/if}
 </section>
 
 <style>
@@ -100,74 +133,41 @@
   }
   .now-playing {
     font-family: var(--display);
-    font-size: 48px;
+    font-size: 44px;
     margin: 0;
     color: var(--text);
+    flex: 1 1 auto;
+    text-align: center;
   }
   .possessive {
     color: var(--text-dim);
     font-weight: normal;
+  }
+  .log-toggle {
+    font-family: var(--display);
+    font-size: 16px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .log-toggle:hover {
+    color: var(--text);
+    border-color: var(--text-dim);
   }
   .players {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
   }
-  .card {
-    background: var(--surface-1);
-    border: 3px solid var(--border);
-    border-radius: 24px;
-    padding: 18px;
+  .player-wrap {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    transition:
-      transform 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
   }
-  .card.active {
-    border-color: var(--accent);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
-  }
-  .card-name {
-    font-family: var(--display);
-    font-size: 24px;
-    color: var(--text);
-  }
-  .stats {
-    display: flex;
-    gap: 16px;
-    font-family: var(--display);
-    font-size: 28px;
-  }
-  .stat {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .stat.coin .icon {
-    color: var(--gold);
-  }
-  .stat.star .icon {
-    color: var(--star);
-  }
-  .buy-star {
-    margin-top: 4px;
-    font-family: var(--display);
-    font-size: 16px;
-    padding: 8px 14px;
-    border: 2px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
-    border-radius: 12px;
-    cursor: pointer;
-  }
-  .buy-star:hover {
-    background: var(--gold);
-    color: #1a132e;
+  .player-wrap > :global(.card) {
+    width: 100%;
   }
   .action-area {
     display: flex;
@@ -196,5 +196,50 @@
   .next-btn:active {
     transform: translateY(6px);
     box-shadow: 0 0 0 #5b21b6;
+  }
+
+  .log-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100svh;
+    width: min(380px, 92vw);
+    background: var(--surface-1);
+    border-left: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -16px 0 32px -12px rgba(0, 0, 0, 0.6);
+    z-index: 10;
+  }
+  .log-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .log-panel-header h3 {
+    font-family: var(--display);
+    margin: 0;
+    font-size: 22px;
+  }
+  .close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+  .close:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .log-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
   }
 </style>
