@@ -2,9 +2,9 @@
   import { game } from '../stores/game.svelte';
   import { settings } from '../stores/settings.svelte';
   import Avatar from '../components/Avatar.svelte';
+  import Dice from '../components/Dice.svelte';
 
-  function roll() {
-    const value = Math.floor(Math.random() * 10) + 1;
+  function handleRoll(value: number) {
     game.recordRoll(value);
   }
 
@@ -58,15 +58,13 @@
   </div>
 
   <div class="action-area">
-    {#if game.lastRoll === null}
-      <button class="big-btn roll" type="button" onclick={roll}>
-        Roll the dice
-      </button>
-    {:else}
-      <div class="roll-result">
-        Rolled <strong>{game.lastRoll}</strong>
-      </div>
-      <button class="big-btn next" type="button" onclick={next}>
+    <Dice
+      onRoll={handleRoll}
+      disabled={game.lastRoll !== null}
+      initial={game.lastRoll}
+    />
+    {#if game.lastRoll !== null}
+      <button class="next-btn" type="button" onclick={next}>
         Next → mini-game
       </button>
     {/if}
@@ -175,53 +173,28 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
   }
-  .big-btn {
+  .next-btn {
     font-family: var(--display);
-    font-size: 36px;
-    padding: 22px 36px;
-    border-radius: 24px;
+    font-size: 28px;
+    padding: 18px 32px;
+    border-radius: 20px;
     border: none;
     cursor: pointer;
+    background: var(--accent-purple);
+    color: white;
+    box-shadow: 0 6px 0 #5b21b6;
     transition:
       transform 0.1s ease,
       box-shadow 0.1s ease;
   }
-  .roll {
-    background: var(--gold);
-    color: #1a132e;
-    box-shadow: 0 6px 0 #b78a17;
-  }
-  .roll:hover {
-    transform: translateY(2px);
-    box-shadow: 0 4px 0 #b78a17;
-  }
-  .roll:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0 #b78a17;
-  }
-  .next {
-    background: var(--accent-purple);
-    color: white;
-    box-shadow: 0 6px 0 #5b21b6;
-  }
-  .next:hover {
+  .next-btn:hover {
     transform: translateY(2px);
     box-shadow: 0 4px 0 #5b21b6;
   }
-  .next:active {
+  .next-btn:active {
     transform: translateY(6px);
     box-shadow: 0 0 0 #5b21b6;
-  }
-  .roll-result {
-    font-family: var(--display);
-    font-size: 32px;
-    color: var(--text);
-  }
-  .roll-result strong {
-    color: var(--gold);
-    font-size: 56px;
-    margin-left: 8px;
   }
 </style>
