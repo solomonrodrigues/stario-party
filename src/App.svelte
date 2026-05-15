@@ -5,6 +5,8 @@
   import BoardScreen from './lib/screens/BoardScreen.svelte';
   import MiniGameScreen from './lib/screens/MiniGameScreen.svelte';
   import ResultsScreen from './lib/screens/ResultsScreen.svelte';
+  import ManageMiniGamesScreen from './lib/screens/ManageMiniGamesScreen.svelte';
+  import SettingsScreen from './lib/screens/SettingsScreen.svelte';
 </script>
 
 <main class="app">
@@ -18,6 +20,10 @@
         <MiniGameScreen />
       {:else if game.screen === 'results'}
         <ResultsScreen />
+      {:else if game.screen === 'manage-minigames'}
+        <ManageMiniGamesScreen />
+      {:else if game.screen === 'settings'}
+        <SettingsScreen />
       {/if}
     </div>
   {/key}
