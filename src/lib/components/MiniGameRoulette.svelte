@@ -3,6 +3,7 @@
   import { Tween } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
   import type { MiniGame } from '../types';
+  import { play } from '../sound/sfx';
 
   interface Props {
     pool: MiniGame[];
@@ -46,6 +47,7 @@
     offset.target = targetIndex * ROW_HEIGHT;
     landTimer = setTimeout(() => {
       landed = true;
+      play('reveal');
       onLand(winner);
     }, DURATION_MS + 60);
   });

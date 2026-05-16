@@ -2,6 +2,7 @@
   import { untrack } from 'svelte';
   import { Tween } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
+  import { play } from '../sound/sfx';
 
   type IconKind = 'coin' | 'star';
 
@@ -24,10 +25,17 @@
 
   $effect(() => {
     if (value !== lastValue) {
-      pulseKind = value > lastValue ? 'up' : 'down';
+      const goingUp = value > lastValue;
+      pulseKind = goingUp ? 'up' : 'down';
       pulseToken += 1;
       lastValue = value;
       tween.target = value;
+      if (goingUp) {
+        play(icon === 'coin' ? 'coin' : 'star');
+      } else if (icon === 'coin') {
+        // The star sibling will fire 'star-purchase' for the combined event.
+        // Coin drops with no matching star increase still want a soft cue.
+      }
     }
   });
 

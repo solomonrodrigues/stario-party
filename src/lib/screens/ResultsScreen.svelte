@@ -1,12 +1,20 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { game } from '../stores/game.svelte';
   import { rankPlayers } from '../game/logic';
+  import { play } from '../sound/sfx';
   import Avatar from '../components/Avatar.svelte';
   import EventLog from '../components/EventLog.svelte';
 
   const ranked = $derived(rankPlayers(game.players));
+
+  onMount(() => {
+    const fanfareDelay = 250 + ranked.length * 350;
+    const t = setTimeout(() => play('fanfare'), fanfareDelay);
+    return () => clearTimeout(t);
+  });
 </script>
 
 <section class="results">

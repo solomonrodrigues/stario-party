@@ -85,7 +85,10 @@
 
   <div class="group">
     <h2>Sound</h2>
-    <p class="hint">Sound effects are coming in Phase 5.</p>
+    <p class="hint">
+      Synthesised arcade SFX on rolls, coin gains, star pops, and the
+      mini-game reveal. Toggle off if you're casting to a quiet room.
+    </p>
     <button
       type="button"
       class="toggle"

@@ -2,6 +2,7 @@
   import { onDestroy, untrack } from 'svelte';
   import { Tween } from 'svelte/motion';
   import { backOut } from 'svelte/easing';
+  import { play } from '../sound/sfx';
 
   interface Props {
     onRoll?: (value: number) => void;
@@ -34,6 +35,7 @@
   function start() {
     if (isRolling || disabled) return;
     clearAllTimers();
+    play('roll');
 
     const finalValue = Math.floor(Math.random() * 10) + 1;
     isRolling = true;

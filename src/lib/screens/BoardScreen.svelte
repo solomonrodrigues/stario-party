@@ -1,13 +1,19 @@
 <script lang="ts">
   import { flip } from 'svelte/animate';
-  import { fly } from 'svelte/transition';
+  import { fly, scale } from 'svelte/transition';
+  import { backOut } from 'svelte/easing';
   import { game } from '../stores/game.svelte';
   import { settings } from '../stores/settings.svelte';
+  import { triggerRandomChaos, type ChaosEvent } from '../game/chaos';
   import Dice from '../components/Dice.svelte';
   import PlayerCard from '../components/PlayerCard.svelte';
   import EventLog from '../components/EventLog.svelte';
 
   let showLog = $state(false);
+  let chaosToast = $state<{ event: ChaosEvent; description: string } | null>(
+    null,
+  );
+  let chaosTimer: ReturnType<typeof setTimeout> | null = null;
 
   function handleRoll(value: number) {
     game.recordRoll(value);
@@ -23,6 +29,19 @@
     );
     if (!ok) return;
     game.buyStar(playerId);
+  }
+
+  function fireChaos() {
+    if (!confirm('Trigger a random chaos event? Anything can happen.')) return;
+    const result = triggerRandomChaos();
+    chaosToast = result;
+    if (chaosTimer) clearTimeout(chaosTimer);
+    chaosTimer = setTimeout(() => (chaosToast = null), 4500);
+  }
+
+  function dismissChaos() {
+    if (chaosTimer) clearTimeout(chaosTimer);
+    chaosToast = null;
   }
 
   // Active player floats to the front of the list so animate:flip slides
@@ -46,14 +65,19 @@
     <h2 class="now-playing">
       {game.currentPlayer?.name ?? '—'}<span class="possessive">'s turn</span>
     </h2>
-    <button
-      class="log-toggle"
-      type="button"
-      aria-pressed={showLog}
-      onclick={() => (showLog = !showLog)}
-    >
-      {showLog ? 'Hide' : 'Show'} log
-    </button>
+    <div class="header-actions">
+      <button class="chaos-btn" type="button" onclick={fireChaos}>
+        ⚡ Chaos
+      </button>
+      <button
+        class="log-toggle"
+        type="button"
+        aria-pressed={showLog}
+        onclick={() => (showLog = !showLog)}
+      >
+        {showLog ? 'Hide' : 'Show'} log
+      </button>
+    </div>
   </header>
 
   <div class="players">
@@ -83,6 +107,21 @@
       </button>
     {/if}
   </div>
+
+  {#if chaosToast}
+    {@const toast = chaosToast}
+    <button
+      class="chaos-toast"
+      type="button"
+      onclick={dismissChaos}
+      transition:scale={{ duration: 320, easing: backOut, start: 0.6 }}
+    >
+      <span class="chaos-emoji">{toast.event.emoji}</span>
+      <span class="chaos-name">{toast.event.name}</span>
+      <span class="chaos-desc">{toast.description}</span>
+      <span class="chaos-dismiss">Tap to dismiss</span>
+    </button>
+  {/if}
 
   {#if showLog}
     <aside class="log-panel" transition:fly={{ x: 360, duration: 280 }}>
@@ -143,7 +182,13 @@
     color: var(--text-dim);
     font-weight: normal;
   }
-  .log-toggle {
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex: none;
+  }
+  .log-toggle,
+  .chaos-btn {
     font-family: var(--display);
     font-size: 16px;
     padding: 8px 14px;
@@ -152,11 +197,73 @@
     background: var(--surface-2);
     color: var(--text-dim);
     cursor: pointer;
-    transition: color 0.15s ease, border-color 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
   }
   .log-toggle:hover {
     color: var(--text);
     border-color: var(--text-dim);
+  }
+  .chaos-btn {
+    color: var(--accent-pink);
+    border-color: rgba(255, 93, 143, 0.4);
+  }
+  .chaos-btn:hover {
+    color: white;
+    background: var(--accent-pink);
+    border-color: var(--accent-pink);
+  }
+
+  .chaos-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'emoji name'
+      'emoji desc'
+      'emoji dismiss';
+    column-gap: 16px;
+    row-gap: 2px;
+    align-items: center;
+    background: linear-gradient(140deg, #2a103f, #4a1463);
+    border: 3px solid var(--accent-pink);
+    border-radius: 20px;
+    padding: 16px 22px;
+    color: white;
+    cursor: pointer;
+    box-shadow:
+      0 18px 36px -10px rgba(0, 0, 0, 0.6),
+      0 0 32px rgba(255, 93, 143, 0.4);
+    z-index: 20;
+    max-width: min(560px, 92vw);
+    text-align: left;
+    font: inherit;
+  }
+  .chaos-emoji {
+    grid-area: emoji;
+    font-size: 48px;
+    line-height: 1;
+  }
+  .chaos-name {
+    grid-area: name;
+    font-family: var(--display);
+    font-size: 22px;
+    color: var(--accent-pink);
+  }
+  .chaos-desc {
+    grid-area: desc;
+    font-size: 17px;
+    line-height: 1.3;
+  }
+  .chaos-dismiss {
+    grid-area: dismiss;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-dim);
+    margin-top: 2px;
   }
   .players {
     display: grid;
