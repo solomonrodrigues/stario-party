@@ -8,6 +8,8 @@ import { settings } from '../stores/settings.svelte';
 
 export type SoundName =
   | 'roll'
+  | 'dice-tick'
+  | 'dice-land'
   | 'reveal'
   | 'coin'
   | 'star'
@@ -107,9 +109,27 @@ export function play(name: SoundName): void {
   if (!settings.value.soundEnabled) return;
   switch (name) {
     case 'roll':
-      noiseBurst(0.08, 0.06);
-      tone(520, 0.08, { type: 'square', volume: 0.07 });
-      tone(720, 0.08, { type: 'square', delay: 0.05, volume: 0.06 });
+      // First-click whoosh: the block is now active.
+      noiseBurst(0.06, 0.05);
+      tone(440, 0.06, { type: 'square', volume: 0.07 });
+      tone(660, 0.08, { type: 'square', delay: 0.04, volume: 0.06 });
+      break;
+    case 'dice-tick':
+      // Tiny percussive click fired on every face change while spinning.
+      // Volume is intentionally tiny so a rapid sequence isn't fatiguing.
+      tone(1280, 0.012, {
+        type: 'square',
+        volume: 0.045,
+        attack: 0.0005,
+        release: 0.004,
+      });
+      break;
+    case 'dice-land':
+      // Chunky stop impact: noise punch + descending blip.
+      noiseBurst(0.06, 0.12);
+      tone(330, 0.08, { type: 'square', volume: 0.16 });
+      tone(523, 0.14, { type: 'triangle', delay: 0.04, volume: 0.16 });
+      tone(784, 0.18, { type: 'triangle', delay: 0.1, volume: 0.12 });
       break;
     case 'coin':
       tone(988, 0.07, { type: 'triangle', volume: 0.14 });
