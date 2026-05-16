@@ -41,6 +41,7 @@ export interface Settings {
 
 export type Screen =
   | 'setup'
+  | 'order-roll'
   | 'board'
   | 'minigame'
   | 'results'

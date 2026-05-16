@@ -20,8 +20,12 @@
   }
 
   function next() {
-    game.goToMiniGame();
+    game.endPlayerTurn();
   }
+
+  const isLastPlayerInRound = $derived(
+    game.currentPlayerIndex === game.players.length - 1,
+  );
 
   function buyStar(playerId: string) {
     const ok = confirm(
@@ -65,6 +69,19 @@
     <h2 class="now-playing">
       {game.currentPlayer?.name ?? '—'}<span class="possessive">'s turn</span>
     </h2>
+    <div class="round-progress" aria-label="Player progress this round">
+      {#each game.players as player, i (player.id)}
+        {@const done = i < game.currentPlayerIndex}
+        {@const active = i === game.currentPlayerIndex}
+        <span
+          class="dot"
+          class:done
+          class:active
+          style:--accent={player.color}
+          title={player.name}
+        ></span>
+      {/each}
+    </div>
     <div class="header-actions">
       <button class="chaos-btn" type="button" onclick={fireChaos}>
         ⚡ Chaos
@@ -103,7 +120,7 @@
     />
     {#if game.lastRoll !== null}
       <button class="next-btn" type="button" onclick={next}>
-        Next → mini-game
+        {isLastPlayerInRound ? 'Next → mini-game' : 'Next player'}
       </button>
     {/if}
   </div>
@@ -182,6 +199,38 @@
     color: var(--text-dim);
     font-weight: normal;
   }
+  .round-progress {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--surface-2);
+    border-radius: 999px;
+  }
+  .round-progress .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--surface-3);
+    border: 2px solid var(--surface-3);
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .round-progress .dot.done {
+    background: var(--accent);
+    border-color: var(--accent);
+    opacity: 0.5;
+  }
+  .round-progress .dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.25);
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.18);
+  }
+
   .header-actions {
     display: flex;
     gap: 8px;

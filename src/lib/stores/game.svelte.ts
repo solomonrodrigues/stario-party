@@ -31,6 +31,25 @@ class GameStore {
     this.lastRoll = null;
     this.selectedMiniGame = null;
     this.log = [];
+    this.screen = 'order-roll';
+  }
+
+  // Reorders the player list (without mutating coins/stars) and enters
+  // the first round on the board.
+  applyTurnOrder(orderedIds: PlayerId[]): void {
+    const byId = new Map(this.players.map((p) => [p.id, p] as const));
+    const reordered: Player[] = [];
+    for (const id of orderedIds) {
+      const p = byId.get(id);
+      if (p) reordered.push(p);
+    }
+    // Append any players that weren't in the ordering (defensive).
+    for (const p of this.players) {
+      if (!orderedIds.includes(p.id)) reordered.push(p);
+    }
+    this.players = reordered;
+    this.currentPlayerIndex = 0;
+    this.lastRoll = null;
     this.screen = 'board';
   }
 
@@ -44,8 +63,18 @@ class GameStore {
     ];
   }
 
-  goToMiniGame(): void {
-    this.screen = 'minigame';
+  // Called from BoardScreen after a player has rolled and finished
+  // their physical move. If more players are in the round, hands off
+  // to them; otherwise launches the round's mini-game.
+  endPlayerTurn(): void {
+    if (this.currentPlayerIndex < this.players.length - 1) {
+      this.currentPlayerIndex += 1;
+      this.lastRoll = null;
+      this.screen = 'board';
+    } else {
+      this.lastRoll = null;
+      this.screen = 'minigame';
+    }
   }
 
   selectMiniGame(game: MiniGame): void {
@@ -76,7 +105,20 @@ class GameStore {
     ];
     this.selectedMiniGame = null;
     this.lastRoll = null;
-    this.advanceTurn();
+    this.endRound();
+  }
+
+  // End of a round: either advance to the next round (back to board,
+  // first player) or finish the game.
+  endRound(): void {
+    if (this.currentTurn >= this.totalTurns) {
+      this.screen = 'results';
+      return;
+    }
+    this.currentTurn += 1;
+    this.currentPlayerIndex = 0;
+    this.lastRoll = null;
+    this.screen = 'board';
   }
 
   buyStar(playerId: PlayerId): boolean {
@@ -85,7 +127,11 @@ class GameStore {
     if (idx === -1) return false;
     const player = this.players[idx];
     if (player.coins < cost) return false;
-    const updated = { ...player, coins: player.coins - cost, stars: player.stars + 1 };
+    const updated = {
+      ...player,
+      coins: player.coins - cost,
+      stars: player.stars + 1,
+    };
     const next = [...this.players];
     next[idx] = updated;
     this.players = next;
@@ -94,22 +140,6 @@ class GameStore {
       { kind: 'star-purchase', playerId, turn: this.currentTurn },
     ];
     return true;
-  }
-
-  advanceTurn(): void {
-    const nextIndex = this.currentPlayerIndex + 1;
-    if (nextIndex >= this.players.length) {
-      // Full round complete
-      if (this.currentTurn >= this.totalTurns) {
-        this.screen = 'results';
-        return;
-      }
-      this.currentPlayerIndex = 0;
-      this.currentTurn += 1;
-    } else {
-      this.currentPlayerIndex = nextIndex;
-    }
-    this.screen = 'board';
   }
 
   appendLog(entry: LogEntry): void {

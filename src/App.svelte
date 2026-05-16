@@ -2,6 +2,7 @@
   import { fade } from 'svelte/transition';
   import { game } from './lib/stores/game.svelte';
   import SetupScreen from './lib/screens/SetupScreen.svelte';
+  import OrderRollScreen from './lib/screens/OrderRollScreen.svelte';
   import BoardScreen from './lib/screens/BoardScreen.svelte';
   import MiniGameScreen from './lib/screens/MiniGameScreen.svelte';
   import ResultsScreen from './lib/screens/ResultsScreen.svelte';
@@ -14,6 +15,8 @@
     <div class="screen" in:fade={{ duration: 220 }}>
       {#if game.screen === 'setup'}
         <SetupScreen />
+      {:else if game.screen === 'order-roll'}
+        <OrderRollScreen />
       {:else if game.screen === 'board'}
         <BoardScreen />
       {:else if game.screen === 'minigame'}
