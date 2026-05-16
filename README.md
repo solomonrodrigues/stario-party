@@ -1,47 +1,79 @@
-# Svelte + TS + Vite
+# Stario Party
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+A browser-based host tool for running an IRL party game in the style of Mario
+Party. One person runs the laptop (ideally cast to a TV), 2–4 players gather
+around. The app handles turns, coins, stars, dice rolls, and mini-game
+selection — with animations and reveals that make it feel like a game show
+rather than a spreadsheet.
 
-## Recommended IDE Setup
+**Live:** <https://solomonrodrigues.github.io/stario-party/>
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+## Features
 
-## Need an official Svelte framework?
+- 2–4 player setup with names, accent colors, and avatars (preset SVGs or your
+  own uploaded image, center-cropped to 256×256 in the browser).
+- Animated d10 dice roll, slot-machine mini-game roulette, Tween-driven coin
+  and star counters.
+- 14 bundled starter mini-games (theme-neutral living-room games) plus full
+  CRUD for your own — add, edit, delete, active/inactive toggle.
+- JSON import / export so you can share your mini-game collection.
+- Five chaos events to shake things up on demand.
+- Synthesised arcade SFX via WebAudio (no asset files, no external deps).
+  Off by default — toggle in Settings.
+- Persistent player presets, custom mini-games, and settings via
+  `localStorage`. The active session is in-memory only (refresh starts over).
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+## Stack
 
-## Technical considerations
+Svelte 5 (with runes) · TypeScript (strict) · Vite · plain CSS · zero runtime
+dependencies. Animations are Svelte's `Tween` / `Spring` motion classes plus
+`transition:` / `animate:` directives and CSS keyframes.
 
-**Why use this over SvelteKit?**
+Deployed via the GitHub Actions workflow at `.github/workflows/deploy.yml`,
+which builds on every push to `main` and publishes to GitHub Pages.
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+## Run locally
 
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```bash
+npm install
+npm run dev      # http://localhost:5173/stario-party/
+npm run check    # svelte-check + tsc
+npm run build    # production build into dist/
+npm run preview  # serve the build locally
 ```
+
+## Project structure
+
+```
+src/
+  App.svelte                  # screen orchestrator
+  main.ts                     # entry point
+  app.css                     # base styles + CSS custom properties
+  lib/
+    types.ts                  # domain types
+    stores/                   # runes-based stores (persisted + session)
+    avatars/                  # SVG presets + canvas resize helper
+    minigames/                # starter games + JSON import/export
+    game/                     # pure logic (rankPlayers, chaos events)
+    sound/                    # WebAudio synthesised SFX
+    components/               # Dice, Avatar, CoinCounter, PlayerCard, ...
+    screens/                  # Setup, Board, MiniGame, Results, Manage, Settings
+```
+
+## Data and persistence
+
+`localStorage` keys:
+
+- `stario:players` — saved player presets (name, avatar, color)
+- `stario:minigames` — full mini-game list, including the bundled starters
+  on first launch
+- `stario:settings` — coins-per-star, default turns, sound on/off
+
+Settings → "Clear all saved data" wipes the lot and restores starters.
+
+## Notes on assets
+
+No third-party character art, sprites, or copyrighted audio is bundled. All
+SVG avatars and sound effects are original (or synthesised at runtime).
+Uploaded photos stay in your browser's localStorage as base64 data URLs —
+nothing leaves the machine.
