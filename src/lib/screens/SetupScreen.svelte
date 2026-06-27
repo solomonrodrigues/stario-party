@@ -5,6 +5,7 @@
   import { game } from '../stores/game.svelte';
   import { settings } from '../stores/settings.svelte';
   import { playerPresets } from '../stores/playerPresets.svelte';
+  import { minigames } from '../stores/minigames.svelte';
   import {
     avatarPresets,
     playerColorPalette,
@@ -45,10 +46,15 @@
     players = players.filter((_, i) => i !== index);
   }
 
+  // A game is unplayable without at least one active mini-game to roll for,
+  // so gate the start on it (matches the pool MiniGameScreen draws from).
+  const hasActiveMiniGame = $derived(minigames.value.some((m) => m.active));
+
   function canStart(): boolean {
     return (
       players.length >= MIN_PLAYERS &&
-      players.every((p) => p.name.trim().length > 0)
+      players.every((p) => p.name.trim().length > 0) &&
+      hasActiveMiniGame
     );
   }
 
@@ -185,6 +191,20 @@
       {/each}
     </div>
   </div>
+
+  {#if !hasActiveMiniGame}
+    <p class="minigame-warning" transition:fly={{ y: -4, duration: 200 }}>
+      No mini-games are active —
+      <button
+        type="button"
+        class="link"
+        onclick={() => game.goTo('manage-minigames')}
+      >
+        add some
+      </button>
+      before starting.
+    </p>
+  {/if}
 
   <button
     class="start"
@@ -398,6 +418,25 @@
     color: #1a132e;
     border-color: var(--gold);
     transform: translateY(-2px);
+  }
+
+  .minigame-warning {
+    margin: 0;
+    text-align: center;
+    font-size: 15px;
+    color: var(--text-dim);
+  }
+  .minigame-warning .link {
+    font: inherit;
+    color: var(--gold);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .minigame-warning .link:hover {
+    color: var(--text);
   }
 
   .start {
