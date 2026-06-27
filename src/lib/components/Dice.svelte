@@ -147,11 +147,13 @@
   let faceCanvases: HTMLCanvasElement[] = [];
   let faceTextures: THREE.CanvasTexture[] = [];
   let faceMaterials: THREE.MeshPhysicalMaterial[] = [];
+  // Shared subtle relief for the panel — same on every face.
+  let panelNormalTexture: THREE.CanvasTexture | null = null;
   const faceValues: number[] = [1, 2, 3, 4, 5, 6];
 
   // Panel geometry shared across faces.
-  const PANEL_MARGIN = 0.12; // fraction of face size from the edge
-  const PANEL_CUT = 0.17; // corner chamfer length
+  const PANEL_MARGIN = 0.1; // fraction of face size from the edge
+  const PANEL_CUT = 0.13; // corner chamfer length
 
   // Bounce on land — a damped scale pop driven inside the render loop.
   let bounceStart = 0;
@@ -230,6 +232,60 @@
     ctx.closePath();
   }
 
+  // A normal map for the raised panel: the panel is a plateau with a soft,
+  // rounded beveled edge so real lighting shades it as a gentle relief. Built
+  // once and shared by every face. Kept subtle.
+  function buildPanelNormalMap(): THREE.CanvasTexture {
+    const S = 256;
+    const blur = S * 0.05; // wider blur → softer, rounder bevel
+
+    // Height field: white panel on black body, blurred so the edge ramps.
+    const hc = document.createElement('canvas');
+    hc.width = hc.height = S;
+    const hctx = hc.getContext('2d')!;
+    hctx.fillStyle = '#000';
+    hctx.fillRect(0, 0, S, S);
+    hctx.filter = `blur(${blur}px)`;
+    hctx.fillStyle = '#fff';
+    tracePanel(hctx, S);
+    hctx.fill();
+    hctx.filter = 'none';
+    const h = hctx.getImageData(0, 0, S, S).data;
+
+    const at = (x: number, y: number) => {
+      x = Math.max(0, Math.min(S - 1, x));
+      y = Math.max(0, Math.min(S - 1, y));
+      return h[(y * S + x) * 4] / 255;
+    };
+
+    const nc = document.createElement('canvas');
+    nc.width = nc.height = S;
+    const nctx = nc.getContext('2d')!;
+    const out = nctx.createImageData(S, S);
+    const strength = 2.2;
+    for (let y = 0; y < S; y++) {
+      for (let x = 0; x < S; x++) {
+        // Wider sampling gradient for a smoother, less noisy normal.
+        let nx = (at(x - 2, y) - at(x + 2, y)) * strength;
+        let ny = (at(x, y - 2) - at(x, y + 2)) * strength;
+        let nz = 1;
+        const len = Math.hypot(nx, ny, nz) || 1;
+        nx /= len;
+        ny /= len;
+        nz /= len;
+        const idx = (y * S + x) * 4;
+        out.data[idx] = (nx * 0.5 + 0.5) * 255;
+        out.data[idx + 1] = (ny * 0.5 + 0.5) * 255;
+        out.data[idx + 2] = (nz * 0.5 + 0.5) * 255;
+        out.data[idx + 3] = 255;
+      }
+    }
+    nctx.putImageData(out, 0, 0);
+    const tex = new THREE.CanvasTexture(nc);
+    tex.colorSpace = THREE.NoColorSpace;
+    return tex;
+  }
+
   function drawFace(i: number) {
     const cv = faceCanvases[i];
     const tex = faceTextures[i];
@@ -290,15 +346,20 @@
     // Number: vertical gradient (#defbac top → #2cf4a8 bottom) with a chunky
     // border. Stroke first, then fill so the border sits behind the gradient.
     const label = String(faceValues[i]);
-    ctx.font = `800 ${Math.round(S * 0.5)}px "Baloo 2", system-ui, sans-serif`;
+    ctx.font = `800 ${Math.round(S * 0.6)}px "Baloo 2", system-ui, sans-serif`;
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.textBaseline = 'alphabetic';
     ctx.lineJoin = 'round';
     ctx.miterLimit = 2;
 
+    // Centre the glyph's actual ink box on the face, so the digit sits dead
+    // centre regardless of font metrics.
     const cx = S / 2;
-    const cy = S * 0.54;
-    const grad = ctx.createLinearGradient(0, cy - S * 0.28, 0, cy + S * 0.28);
+    const mtr = ctx.measureText(label);
+    const ascent = mtr.actualBoundingBoxAscent;
+    const descent = mtr.actualBoundingBoxDescent;
+    const cy = S / 2 + (ascent - descent) / 2;
+    const grad = ctx.createLinearGradient(0, cy - ascent, 0, cy + descent);
     grad.addColorStop(0, '#defbac');
     grad.addColorStop(1, '#2cf4a8');
 
@@ -333,6 +394,8 @@
 
     // A texture + material per face so each can show a different number.
     const aniso = renderer.capabilities.getMaxAnisotropy();
+    panelNormalTexture = buildPanelNormalMap();
+    panelNormalTexture.anisotropy = aniso;
     for (let i = 0; i < FACE_COUNT; i++) {
       const cv = document.createElement('canvas');
       cv.width = 256;
@@ -346,6 +409,9 @@
         // White base so the baked-in face texture renders its true colours.
         color: 0xffffff,
         map: tex,
+        // Subtle lighting relief on the panel edge.
+        normalMap: panelNormalTexture,
+        normalScale: new THREE.Vector2(0.5, 0.5),
         transparent: true,
         opacity: 0.97,
         roughness: 0.4,
@@ -440,6 +506,7 @@
     geometry?.dispose();
     for (const t of faceTextures) t.dispose();
     for (const mat of faceMaterials) mat.dispose();
+    panelNormalTexture?.dispose();
     if (renderer) {
       renderer.dispose();
       renderer.forceContextLoss();
@@ -453,6 +520,7 @@
     faceCanvases = [];
     faceTextures = [];
     faceMaterials = [];
+    panelNormalTexture = null;
   }
 
   onMount(() => {
