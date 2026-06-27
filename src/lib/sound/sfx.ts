@@ -109,27 +109,51 @@ export function play(name: SoundName): void {
   if (!settings.value.soundEnabled) return;
   switch (name) {
     case 'roll':
-      // First-click whoosh: the block is now active.
-      noiseBurst(0.06, 0.05);
-      tone(440, 0.06, { type: 'square', volume: 0.07 });
-      tone(660, 0.08, { type: 'square', delay: 0.04, volume: 0.06 });
+      // The Dice Block pops in and starts hovering — a soft rounded rising
+      // chirp on sine tones, no noise, so it's gentle on the ears.
+      tone(523, 0.05, { type: 'sine', volume: 0.09, release: 0.05 });
+      tone(784, 0.06, { type: 'sine', delay: 0.04, volume: 0.09, release: 0.05 });
+      tone(1046, 0.09, {
+        type: 'sine',
+        delay: 0.09,
+        volume: 0.075,
+        release: 0.07,
+      });
       break;
     case 'dice-tick':
-      // Tiny percussive click fired on every face change while spinning.
-      // Volume is intentionally tiny so a rapid sequence isn't fatiguing.
-      tone(1280, 0.012, {
-        type: 'square',
-        volume: 0.045,
-        attack: 0.0005,
-        release: 0.004,
+      // Soft rounded blip on every face change while the block spins — a clean
+      // sine "bip" (like MP's number cycle) with a gentle attack/release so a
+      // rapid sequence stays smooth rather than clicky.
+      tone(880, 0.018, {
+        type: 'sine',
+        volume: 0.035,
+        attack: 0.003,
+        release: 0.035,
       });
       break;
     case 'dice-land':
-      // Chunky stop impact: noise punch + descending blip.
-      noiseBurst(0.06, 0.12);
-      tone(330, 0.08, { type: 'square', volume: 0.16 });
-      tone(523, 0.14, { type: 'triangle', delay: 0.04, volume: 0.16 });
-      tone(784, 0.18, { type: 'triangle', delay: 0.1, volume: 0.12 });
+      // The Mario Party "ding" on a hit: a warm, mellow bell that rings out.
+      // Kept to lower partials at softer volumes so it's bright but not piercing.
+      tone(659, 0.09, { type: 'sine', volume: 0.13, release: 0.1 });
+      tone(988, 0.32, {
+        type: 'sine',
+        delay: 0.02,
+        volume: 0.15,
+        release: 0.3,
+      });
+      tone(1318, 0.34, {
+        type: 'sine',
+        delay: 0.05,
+        volume: 0.09,
+        release: 0.34,
+      });
+      // One soft higher partial for a touch of shimmer, well rolled off.
+      tone(1976, 0.3, {
+        type: 'sine',
+        delay: 0.06,
+        volume: 0.04,
+        release: 0.32,
+      });
       break;
     case 'coin':
       tone(988, 0.07, { type: 'triangle', volume: 0.14 });
