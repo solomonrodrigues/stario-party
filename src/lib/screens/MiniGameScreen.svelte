@@ -18,10 +18,10 @@
   function handleLand(g: MiniGame) {
     chosen = g;
     game.selectMiniGame(g);
-    // brief pause for the flash before flipping to instructions
+    // let the win linger on the roulette before flipping to instructions
     setTimeout(() => {
       phase = 'instructions';
-    }, 700);
+    }, 1800);
   }
 
   function toAward() {
