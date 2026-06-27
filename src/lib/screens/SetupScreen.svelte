@@ -17,6 +17,24 @@
   const MAX_PLAYERS = 4;
   const TURN_OPTIONS = [10, 15, 20] as const;
 
+  // Title rendered one letter at a time in cycling Mario-logo colours.
+  const TITLE = 'Stario Party';
+  const TITLE_COLORS = [
+    '#e8412b', // red
+    '#f57e20', // orange
+    '#ffcf33', // yellow
+    '#43b34a', // green
+    '#2aa3e8', // blue
+    '#e0489e', // magenta
+  ];
+  let titleLetterIndex = 0;
+  const titleParts = TITLE.split('').map((ch) => {
+    if (ch === ' ') return { ch, color: null as string | null };
+    const color = TITLE_COLORS[titleLetterIndex % TITLE_COLORS.length];
+    titleLetterIndex += 1;
+    return { ch, color };
+  });
+
   function newPlayerId(): string {
     return crypto.randomUUID();
   }
@@ -107,7 +125,15 @@
 
 <section class="setup">
   <header class="header">
-    <h1 class="title">Stario Party</h1>
+    <h1 class="title" aria-label={TITLE}>
+      {#each titleParts as part, i (i)}
+        {#if part.color}
+          <span style:color={part.color}>{part.ch}</span>
+        {:else}
+          <span class="title-space" aria-hidden="true"></span>
+        {/if}
+      {/each}
+    </h1>
     <p class="subtitle">Set up your squad and get the show going.</p>
     <div class="nav">
       <button type="button" onclick={() => game.goTo('manage-minigames')}>
@@ -233,12 +259,20 @@
     gap: 10px;
   }
   .title {
-    font-family: var(--display);
-    font-size: 72px;
+    font-family: 'Mario Party Hudson', var(--display);
+    font-size: 76px;
     margin: 0;
-    color: var(--gold);
-    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
-    letter-spacing: -0.01em;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    -webkit-text-stroke: 3px #1e1b4b;
+    paint-order: stroke fill;
+    text-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+  }
+  .title span {
+    display: inline-block;
+  }
+  .title .title-space {
+    width: 0.3em;
   }
   .subtitle {
     margin: 0;

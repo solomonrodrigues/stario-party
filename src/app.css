@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'Mario Party Hudson';
+  src: url('./lib/assets/fonts/mario-party-hudson.ttf') format('truetype');
+  font-display: swap;
+}
+
 :root {
   /* Palette */
   --bg: #0f0a26;

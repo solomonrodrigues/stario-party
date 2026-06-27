@@ -3,6 +3,7 @@
   import * as THREE from 'three';
   import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
   import { play } from '../sound/sfx';
+  import { DICE_FONT_FAMILY, loadDiceFont } from '../fonts';
 
   type Phase = 'idle' | 'spinning' | 'done';
 
@@ -346,11 +347,13 @@
     // Number: vertical gradient (#defbac top → #2cf4a8 bottom) with a chunky
     // border. Stroke first, then fill so the border sits behind the gradient.
     const label = String(faceValues[i]);
-    ctx.font = `800 ${Math.round(S * 0.6)}px "Baloo 2", system-ui, sans-serif`;
+    // Natural weight — the Mario Party font has a single weight, so forcing
+    // bold makes the browser synthesise a too-wide, heavy glyph.
+    ctx.font = `${Math.round(S * 0.6)}px "${DICE_FONT_FAMILY}", "Fredoka", system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.lineJoin = 'round';
-    ctx.miterLimit = 2;
+    ctx.lineJoin = 'miter';
+    ctx.miterLimit = 10;
 
     // Centre the glyph's actual ink box on the face, so the digit sits dead
     // centre regardless of font metrics.
@@ -359,16 +362,23 @@
     const ascent = mtr.actualBoundingBoxAscent;
     const descent = mtr.actualBoundingBoxDescent;
     const cy = S / 2 + (ascent - descent) / 2;
+
     const grad = ctx.createLinearGradient(0, cy - ascent, 0, cy + descent);
     grad.addColorStop(0, '#defbac');
     grad.addColorStop(1, '#2cf4a8');
-
-    ctx.lineWidth = S * 0.075;
     ctx.strokeStyle = '#3265a5';
+
+    // Normal outset outline behind the fill.
+    ctx.lineWidth = S * 0.06;
     ctx.strokeText(label, cx, cy);
 
+    // Gradient fill.
     ctx.fillStyle = grad;
     ctx.fillText(label, cx, cy);
+
+    // A very slight inset outline on top, hugging the inner edge.
+    ctx.lineWidth = S * 0.02;
+    ctx.strokeText(label, cx, cy);
 
     tex.needsUpdate = true;
   }
@@ -525,6 +535,11 @@
 
   onMount(() => {
     initThree();
+    // Repaint the faces once the Mario Party font is ready (canvas falls back
+    // to the CSS stack until then).
+    void loadDiceFont().then(() => {
+      if (faceTextures.length) drawAllFaces();
+    });
   });
 
   onDestroy(() => {
