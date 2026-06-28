@@ -5,6 +5,7 @@
   import { game } from '../stores/game.svelte';
   import { settings } from '../stores/settings.svelte';
   import { triggerRandomChaos, type ChaosEvent } from '../game/chaos';
+  import { confirmDialog } from '../stores/confirm.svelte';
   import Dice from '../components/Dice.svelte';
   import PlayerCard from '../components/PlayerCard.svelte';
   import EventLog from '../components/EventLog.svelte';
@@ -27,16 +28,23 @@
     game.currentPlayerIndex === game.players.length - 1,
   );
 
-  function buyStar(playerId: string) {
-    const ok = confirm(
-      `Trade ${settings.value.coinsPerStar} coins for a star?`,
-    );
+  async function buyStar(playerId: string) {
+    const ok = await confirmDialog.ask({
+      title: 'Buy a star',
+      message: `Trade ${settings.value.coinsPerStar} coins for a star?`,
+      confirmLabel: 'Buy star',
+    });
     if (!ok) return;
     game.buyStar(playerId);
   }
 
-  function fireChaos() {
-    if (!confirm('Trigger a random chaos event? Anything can happen.')) return;
+  async function fireChaos() {
+    const ok = await confirmDialog.ask({
+      title: 'Chaos event',
+      message: 'Trigger a random chaos event? Anything can happen.',
+      confirmLabel: 'Unleash it',
+    });
+    if (!ok) return;
     const result = triggerRandomChaos();
     chaosToast = result;
     if (chaosTimer) clearTimeout(chaosTimer);
@@ -46,6 +54,19 @@
   function dismissChaos() {
     if (chaosTimer) clearTimeout(chaosTimer);
     chaosToast = null;
+  }
+
+  async function quitToMenu() {
+    const ok = await confirmDialog.ask({
+      title: 'Quit game',
+      message:
+        'Quit this game and return to setup? The current game will be lost.',
+      confirmLabel: 'Quit',
+      tone: 'danger',
+    });
+    if (!ok) return;
+    if (chaosTimer) clearTimeout(chaosTimer);
+    game.reset();
   }
 
   // Active player floats to the front of the list so animate:flip slides
@@ -83,6 +104,17 @@
       {/each}
     </div>
     <div class="header-actions">
+      <button class="quit-btn" type="button" onclick={quitToMenu}>
+        ✕ Quit
+      </button>
+      <button
+        class="undo-btn"
+        type="button"
+        onclick={() => game.undo()}
+        disabled={!game.canUndo}
+      >
+        ↶ Undo
+      </button>
       <button class="chaos-btn" type="button" onclick={fireChaos}>
         ⚡ Chaos
       </button>
@@ -237,7 +269,9 @@
     flex: none;
   }
   .log-toggle,
-  .chaos-btn {
+  .chaos-btn,
+  .quit-btn,
+  .undo-btn {
     font-family: var(--display);
     font-size: 16px;
     padding: 8px 14px;
@@ -248,9 +282,19 @@
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
   }
-  .log-toggle:hover {
+  .log-toggle:hover,
+  .undo-btn:not(:disabled):hover {
     color: var(--text);
     border-color: var(--text-dim);
+  }
+  .undo-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .quit-btn:hover {
+    color: white;
+    background: #c0392b;
+    border-color: #c0392b;
   }
   .chaos-btn {
     color: var(--accent-pink);

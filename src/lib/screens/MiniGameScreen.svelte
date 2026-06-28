@@ -60,7 +60,7 @@
       <h2>No mini-games enabled</h2>
       <p>
         Open the mini-game manager and enable at least one game before
-        continuing. (Phase 4 will surface that screen directly.)
+        continuing.
       </p>
     </div>
   {:else if phase === 'rolling'}

@@ -98,6 +98,9 @@ export function triggerRandomChaos(): {
   event: ChaosEvent;
   description: string;
 } {
+  // Capture state first so the whole chaos event (coin/star changes + log)
+  // can be reverted as a single undo step.
+  game.pushUndo();
   const event = pickRandom(chaosEvents);
   const description = event.trigger();
   play('chaos');

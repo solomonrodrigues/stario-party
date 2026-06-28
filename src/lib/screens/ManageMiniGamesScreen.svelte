@@ -3,6 +3,7 @@
   import type { MiniGame, MiniGameCategory } from '../types';
   import { minigames } from '../stores/minigames.svelte';
   import { game } from '../stores/game.svelte';
+  import { confirmDialog } from '../stores/confirm.svelte';
   import {
     exportMiniGames,
     importMiniGamesFromFile,
@@ -75,8 +76,14 @@
     );
   }
 
-  function remove(g: MiniGame) {
-    if (!confirm(`Delete "${g.name}"?`)) return;
+  async function remove(g: MiniGame) {
+    const ok = await confirmDialog.ask({
+      title: 'Delete mini-game',
+      message: `Delete "${g.name}"?`,
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    });
+    if (!ok) return;
     minigames.value = minigames.value.filter((m) => m.id !== g.id);
     if (editingId === g.id) cancelEdit();
   }

@@ -18,10 +18,15 @@ rather than a spreadsheet.
   CRUD for your own — add, edit, delete, active/inactive toggle.
 - JSON import / export so you can share your mini-game collection.
 - Five chaos events to shake things up on demand.
+- One-tap undo for the host: step back an accidental roll, star purchase, or
+  chaos event during a player's turn.
 - Synthesised arcade SFX via WebAudio (no asset files, no external deps).
   Off by default — toggle in Settings.
 - Persistent player presets, custom mini-games, and settings via
-  `localStorage`. The active session is in-memory only (refresh starts over).
+  `localStorage`.
+- Crash-safe live session: the in-progress game (turns, coins, stars, log) is
+  mirrored to `localStorage` as you play, so a refresh, sleep, or crash
+  mid-party prompts you to resume right where you left off.
 
 ## Stack
 
@@ -68,6 +73,9 @@ src/
 - `stario:minigames` — full mini-game list, including the bundled starters
   on first launch
 - `stario:settings` — coins-per-star, default turns, sound on/off
+- `stario:session` — the live game in progress (players, coins, stars, turn,
+  log). Written while a game is underway and cleared when it ends or you start
+  fresh; on load a resumable session prompts "Resume / Start fresh".
 
 Settings → "Clear all saved data" wipes the lot and restores starters.
 

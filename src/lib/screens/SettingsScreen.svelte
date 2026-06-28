@@ -4,6 +4,7 @@
   import { minigames } from '../stores/minigames.svelte';
   import { playerPresets } from '../stores/playerPresets.svelte';
   import { starterMiniGames } from '../minigames/starter';
+  import { confirmDialog } from '../stores/confirm.svelte';
 
   const TURN_OPTIONS = [10, 15, 20] as const;
   const COIN_OPTIONS = [10, 15, 20, 25, 30, 40] as const;
@@ -23,14 +24,15 @@
     };
   }
 
-  function clearAll() {
-    if (
-      !confirm(
+  async function clearAll() {
+    const ok = await confirmDialog.ask({
+      title: 'Clear all saved data',
+      message:
         'Erase all saved players, mini-games, and settings? This cannot be undone.',
-      )
-    ) {
-      return;
-    }
+      confirmLabel: 'Erase everything',
+      tone: 'danger',
+    });
+    if (!ok) return;
     playerPresets.value = [];
     minigames.value = [...starterMiniGames];
     settings.value = {
@@ -38,6 +40,11 @@
       soundEnabled: false,
       defaultTurns: 10,
     };
+    try {
+      localStorage.removeItem('stario:session');
+    } catch {
+      // ignore — storage may be unavailable
+    }
   }
 </script>
 

@@ -6,6 +6,7 @@
   import { settings } from '../stores/settings.svelte';
   import { playerPresets } from '../stores/playerPresets.svelte';
   import { minigames } from '../stores/minigames.svelte';
+  import { confirmDialog } from '../stores/confirm.svelte';
   import {
     avatarPresets,
     playerColorPalette,
@@ -109,8 +110,14 @@
     players = [...players, { ...preset }];
   }
 
-  function deletePreset(preset: PlayerPreset) {
-    if (!confirm(`Forget "${preset.name}"?`)) return;
+  async function deletePreset(preset: PlayerPreset) {
+    const ok = await confirmDialog.ask({
+      title: 'Forget player',
+      message: `Forget "${preset.name}"?`,
+      confirmLabel: 'Forget',
+      tone: 'danger',
+    });
+    if (!ok) return;
     playerPresets.value = playerPresets.value.filter(
       (p) => p.id !== preset.id,
     );
