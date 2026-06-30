@@ -80,6 +80,14 @@
                 bought a <span class="hl star">★</span>
               </span>
             </span>
+          {:else if entry.kind === 'space'}
+            {@const p = playerById.get(entry.playerId)}
+            <span class="line">
+              {#if p}
+                <Avatar avatar={p.avatar} size={28} />
+              {/if}
+              <span class="text">{entry.description}</span>
+            </span>
           {:else if entry.kind === 'chaos'}
             <span class="line">
               <span class="icon" aria-hidden="true">⚡</span>

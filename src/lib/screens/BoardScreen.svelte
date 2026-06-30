@@ -9,6 +9,9 @@
   import Dice from '../components/Dice.svelte';
   import PlayerCard from '../components/PlayerCard.svelte';
   import EventLog from '../components/EventLog.svelte';
+  import SpacePicker from '../components/SpacePicker.svelte';
+  import SpaceReveal from '../components/SpaceReveal.svelte';
+  import type { SpaceType } from '../types';
 
   let showLog = $state(false);
   let chaosToast = $state<{ event: ChaosEvent; description: string } | null>(
@@ -18,6 +21,10 @@
 
   function handleRoll(value: number) {
     game.recordRoll(value);
+  }
+
+  function pickSpace(spaceType: SpaceType) {
+    game.resolveSpace(spaceType);
   }
 
   function next() {
@@ -150,7 +157,14 @@
       disabled={game.lastRoll !== null}
       initial={game.lastRoll}
     />
-    {#if game.lastRoll !== null}
+    {#if game.lastRoll !== null && game.lastOutcome === null}
+      <SpacePicker
+        name={game.currentPlayer?.name ?? 'this player'}
+        onPick={pickSpace}
+      />
+    {/if}
+    {#if game.lastOutcome !== null}
+      <SpaceReveal outcome={game.lastOutcome} />
       <button class="next-btn" type="button" onclick={next}>
         {isLastPlayerInRound ? 'Next → mini-game' : 'Next player'}
       </button>

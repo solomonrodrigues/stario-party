@@ -6,7 +6,11 @@ import type {
   PlayerId,
   PlayerPreset,
   Screen,
+  SpaceOutcome,
+  SpaceType,
 } from '../types';
+import { spaceDef } from '../game/spaces';
+import { play, type SoundName } from '../sound/sfx';
 import { settings } from './settings.svelte';
 
 const SESSION_KEY = 'stario:session';
@@ -24,6 +28,7 @@ interface SessionSnapshot {
   totalTurns: number;
   currentTurn: number;
   lastRoll: number | null;
+  lastOutcome: SpaceOutcome | null;
   selectedMiniGame: MiniGame | null;
   log: LogEntry[];
 }
@@ -59,6 +64,7 @@ class GameStore {
   totalTurns = $state(10);
   currentTurn = $state(1);
   lastRoll = $state<number | null>(null);
+  lastOutcome = $state<SpaceOutcome | null>(null);
   selectedMiniGame = $state<MiniGame | null>(null);
   log = $state<LogEntry[]>([]);
 
@@ -98,6 +104,7 @@ class GameStore {
       totalTurns: this.totalTurns,
       currentTurn: this.currentTurn,
       lastRoll: this.lastRoll,
+      lastOutcome: this.lastOutcome,
       selectedMiniGame: this.selectedMiniGame,
       log: this.log,
     });
@@ -109,6 +116,7 @@ class GameStore {
     this.totalTurns = s.totalTurns;
     this.currentTurn = s.currentTurn;
     this.lastRoll = s.lastRoll;
+    this.lastOutcome = s.lastOutcome ?? null;
     this.selectedMiniGame = s.selectedMiniGame;
     this.log = s.log;
     this.screen = s.screen;
@@ -182,6 +190,7 @@ class GameStore {
     this.currentTurn = 1;
     this.currentPlayerIndex = 0;
     this.lastRoll = null;
+    this.lastOutcome = null;
     this.selectedMiniGame = null;
     this.log = [];
     this.clearUndo();
@@ -204,6 +213,7 @@ class GameStore {
     this.players = reordered;
     this.currentPlayerIndex = 0;
     this.lastRoll = null;
+    this.lastOutcome = null;
     this.clearUndo();
     this.screen = 'board';
   }
@@ -219,11 +229,53 @@ class GameStore {
     ];
   }
 
+  // Resolve the space the active player landed on after their roll. One space
+  // per roll: requires a roll and no outcome yet. Mirrors triggerRandomChaos —
+  // a single pushUndo() + log entry wraps the def's mutation, so undo reverts
+  // the whole landing and the host can re-pick.
+  resolveSpace(spaceType: SpaceType): void {
+    const player = this.currentPlayer;
+    if (!player) return;
+    if (this.lastRoll === null || this.lastOutcome !== null) return;
+    const def = spaceDef(spaceType);
+    if (!def) return;
+    this.pushUndo();
+    const before = player.coins + player.stars * 1000;
+    const description = def.resolve(player);
+    this.lastOutcome = {
+      spaceType: def.id,
+      label: def.label,
+      emoji: def.emoji,
+      accent: def.accent,
+      description,
+    };
+    this.log = [
+      ...this.log,
+      {
+        kind: 'space',
+        playerId: player.id,
+        spaceType: def.id,
+        description,
+        turn: this.currentTurn,
+      },
+    ];
+    // Sound by the active player's net change: stars trump coins.
+    const after = this.currentPlayer
+      ? this.currentPlayer.coins + this.currentPlayer.stars * 1000
+      : before;
+    let sound: SoundName = 'reveal';
+    if (after - before >= 1000) sound = 'star';
+    else if (after > before) sound = 'coin';
+    else if (after < before) sound = 'chaos';
+    play(sound);
+  }
+
   // Called from BoardScreen after a player has rolled and finished
   // their physical move. If more players are in the round, hands off
   // to them; otherwise launches the round's mini-game.
   endPlayerTurn(): void {
     this.clearUndo();
+    this.lastOutcome = null;
     if (this.currentPlayerIndex < this.players.length - 1) {
       this.currentPlayerIndex += 1;
       this.lastRoll = null;
@@ -277,6 +329,7 @@ class GameStore {
     this.currentTurn += 1;
     this.currentPlayerIndex = 0;
     this.lastRoll = null;
+    this.lastOutcome = null;
     this.screen = 'board';
   }
 
@@ -312,6 +365,7 @@ class GameStore {
     this.currentPlayerIndex = 0;
     this.currentTurn = 1;
     this.lastRoll = null;
+    this.lastOutcome = null;
     this.selectedMiniGame = null;
     this.log = [];
     this.clearUndo();

@@ -48,6 +48,26 @@ export type Screen =
   | 'manage-minigames'
   | 'settings';
 
+export type SpaceType =
+  | 'blue'
+  | 'red'
+  | 'event'
+  | 'bowser'
+  | 'item'
+  | 'lucky'
+  | 'unlucky'
+  | 'vs';
+
+// The resolved result of the active player landing on a space — held in game
+// state to drive the reveal and persisted so a refresh mid-reveal recovers.
+export interface SpaceOutcome {
+  spaceType: SpaceType;
+  label: string;
+  emoji: string;
+  accent: string;
+  description: string;
+}
+
 export type LogEntry =
   | { kind: 'roll'; playerId: PlayerId; value: number; turn: number }
   | {
@@ -58,6 +78,13 @@ export type LogEntry =
       turn: number;
     }
   | { kind: 'star-purchase'; playerId: PlayerId; turn: number }
+  | {
+      kind: 'space';
+      playerId: PlayerId;
+      spaceType: SpaceType;
+      description: string;
+      turn: number;
+    }
   | { kind: 'chaos'; description: string; turn: number };
 
 export interface GameState {
