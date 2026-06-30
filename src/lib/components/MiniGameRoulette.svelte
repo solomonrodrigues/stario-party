@@ -209,8 +209,8 @@
     width: min(720px, 92vw);
     border-radius: 28px;
     padding: 6px;
-    background: linear-gradient(180deg, #2b2150, #1a1430);
-    border: 3px solid var(--border);
+    background: linear-gradient(180deg, var(--velvet), var(--velvet-deep));
+    border: 3px solid var(--border-strong);
     box-shadow:
       0 18px 40px -14px rgba(0, 0, 0, 0.6),
       inset 0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -263,11 +263,11 @@
   }
   .viewport::before {
     top: 0;
-    background: linear-gradient(180deg, rgba(10, 6, 22, 0.92), transparent);
+    background: linear-gradient(180deg, rgba(8, 8, 11, 0.92), transparent);
   }
   .viewport::after {
     bottom: 0;
-    background: linear-gradient(0deg, rgba(10, 6, 22, 0.92), transparent);
+    background: linear-gradient(0deg, rgba(8, 8, 11, 0.92), transparent);
   }
 
   .strip {

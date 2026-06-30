@@ -10,9 +10,13 @@
   import ManageMiniGamesScreen from './lib/screens/ManageMiniGamesScreen.svelte';
   import SettingsScreen from './lib/screens/SettingsScreen.svelte';
   import ConfirmDialog from './lib/components/ConfirmDialog.svelte';
+  import StageCurtains from './lib/components/StageCurtains.svelte';
 </script>
 
 <main class="app">
+  <!-- ── Theatre stage frame (decorative, non-interactive) ── -->
+  <StageCurtains />
+
   {#key game.screen}
     <div class="screen" in:fade={{ duration: 220 }}>
       {#if game.screen === 'setup'}
@@ -59,15 +63,28 @@
 
 <style>
   .app {
+    --curtain-w: 11vw;
+    --valance-h: 8vh;
     min-height: 100svh;
     width: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow-x: clip;
   }
   .screen {
     flex: 1;
     display: flex;
     flex-direction: column;
+    /* Keep content clear of the curtains and valance. */
+    padding: calc(var(--valance-h) + 8px) calc(var(--curtain-w) + 12px) 0;
+    z-index: 1;
+  }
+
+  @media (max-width: 640px) {
+    .app {
+      --valance-h: 6vh;
+    }
   }
 
   .resume-overlay {
@@ -83,8 +100,8 @@
   }
   .resume-card {
     background: var(--surface-1);
-    border: 3px solid var(--accent-purple);
-    border-radius: 24px;
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
     padding: 32px 36px;
     max-width: min(460px, 92vw);
     text-align: center;
@@ -95,7 +112,7 @@
     text-transform: uppercase;
     letter-spacing: 0.16em;
     font-size: 13px;
-    color: var(--accent-pink);
+    color: var(--gold);
   }
   .resume-title {
     font-family: var(--display);
@@ -115,29 +132,27 @@
   }
   .resume-btn {
     font-family: var(--display);
+    font-weight: 600;
     font-size: 22px;
-    padding: 14px 24px;
-    border-radius: 16px;
+    padding: 13px 24px;
+    border-radius: 14px;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     transition:
-      transform 0.1s ease,
-      box-shadow 0.1s ease,
+      transform 0.08s ease,
       background 0.15s ease,
-      color 0.15s ease;
+      color 0.15s ease,
+      border-color 0.15s ease;
   }
   .resume-btn.primary {
-    background: var(--accent-purple);
-    color: white;
-    box-shadow: 0 6px 0 #5b21b6;
+    background: var(--gold);
+    color: #43320a;
   }
   .resume-btn.primary:hover {
-    transform: translateY(2px);
-    box-shadow: 0 4px 0 #5b21b6;
+    background: #ffd45e;
   }
   .resume-btn.primary:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0 #5b21b6;
+    transform: translateY(1px);
   }
   .resume-btn.ghost {
     background: transparent;
@@ -146,6 +161,6 @@
   }
   .resume-btn.ghost:hover {
     color: var(--text);
-    border-color: var(--text-dim);
+    border-color: var(--border-strong);
   }
 </style>

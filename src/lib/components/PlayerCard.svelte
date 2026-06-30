@@ -40,23 +40,24 @@
 
 <style>
   .card {
+    position: relative;
     background: var(--surface-1);
-    border: 3px solid var(--border);
-    border-radius: 24px;
-    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 18px 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
     transition:
-      transform 0.25s ease,
-      border-color 0.25s ease,
-      box-shadow 0.25s ease;
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
   }
   .card.active {
-    border-color: var(--accent);
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.45);
+    background: var(--surface-2);
+    border-color: var(--accent);
   }
   .name {
     font-family: var(--display);
@@ -73,23 +74,24 @@
     gap: 18px;
   }
   .buy-star {
-    margin-top: 4px;
+    margin-top: 6px;
     font-family: var(--display);
+    font-weight: 600;
     font-size: 15px;
-    padding: 8px 14px;
-    border: 2px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
+    padding: 9px 16px;
+    border: none;
     border-radius: 12px;
     cursor: pointer;
+    color: #43320a;
+    background: var(--gold);
     transition:
       background 0.15s ease,
-      color 0.15s ease,
-      transform 0.1s ease;
+      transform 0.08s ease;
   }
   .buy-star:hover {
-    background: var(--gold);
-    color: #1a132e;
-    transform: translateY(-1px);
+    background: #ffd45e;
+  }
+  .buy-star:active {
+    transform: translateY(1px);
   }
 </style>

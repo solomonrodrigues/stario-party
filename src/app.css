@@ -5,37 +5,47 @@
 }
 
 :root {
-  /* Palette */
-  --bg: #0f0a26;
-  --bg-glow: radial-gradient(
-      ellipse at top,
-      rgba(99, 49, 173, 0.4),
-      transparent 60%
-    ),
-    radial-gradient(ellipse at bottom, rgba(29, 13, 71, 0.6), transparent 60%);
-  --surface-1: #1f1845;
-  --surface-2: #2a2059;
-  --surface-3: #372a73;
-  --border: #3a2d77;
+  /* ---- Theatre palette (dark, neutral) -------------------------------- */
+  /* The auditorium / stage is a dark charcoal room; red velvet curtains
+     and gold trim frame it. */
+  --house: #0e0e12;
+  --house-deep: #08080b;
+  --stage-back: #161620;
 
-  --text: #f5f3ff;
-  --text-dim: #b3a9d9;
+  /* Red velvet — kept simple: a body tone with a darker and lighter step. */
+  --velvet: #9a1626;
+  --velvet-deep: #5c0c16;
+  --velvet-lit: #b8283a;
 
-  --gold: #f7c948;
-  --gold-deep: #b78a17;
+  --gold: #f5c542;
+  --gold-soft: #e9d9a8;
+
+  /* ---- Surfaces (cool charcoal) --------------------------------------- */
+  --surface-1: #17171f;
+  --surface-2: #20202b;
+  --surface-3: #2c2c39;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --text: #f4f5f8;
+  --text-dim: #9da3b2;
+
+  /* ---- Accents (Mario Party candy) ------------------------------------ */
   --star: #ffd54f;
+  --candy-blue: #3b82f6;
+  --candy-green: #2cf4a8;
   --accent-purple: #7c3aed;
   --accent-pink: #ff5d8f;
   --accent-blue: #3b82f6;
   --danger: #ef4444;
 
-  /* Typography */
+  /* ---- Typography ----------------------------------------------------- */
   --display: 'Fredoka', 'Segoe UI', system-ui, sans-serif;
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   font: 18px/1.5 var(--sans);
   color: var(--text);
-  background: var(--bg);
+  background: var(--house);
   color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -49,8 +59,12 @@ body {
   padding: 0;
   min-height: 100svh;
   background:
-    var(--bg-glow),
-    var(--bg);
+    radial-gradient(
+      100% 75% at 50% -5%,
+      var(--stage-back),
+      var(--house) 55%,
+      var(--house-deep) 100%
+    );
   background-attachment: fixed;
 }
 
@@ -65,7 +79,7 @@ button {
 }
 
 button:focus-visible {
-  outline: 3px solid var(--gold);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
 
@@ -79,4 +93,65 @@ h3 {
 
 * {
   box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------------------ *
+ *  Material system — clean, flat surfaces. Subtle borders, restrained
+ *  shadow. Depth comes from calm colour blocking and space, not gloss.
+ * ------------------------------------------------------------------------ */
+
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
+.btn {
+  font-family: var(--display);
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.btn:not(:disabled):hover {
+  background: var(--surface-3);
+  border-color: var(--border-strong);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Primary call-to-action: clean solid fill, no fake bevel. */
+.btn-primary {
+  font-family: var(--display);
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  background: var(--gold);
+  color: #43320a;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.08s ease;
+}
+.btn-primary:not(:disabled):hover {
+  background: #ffd45e;
+}
+.btn-primary:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

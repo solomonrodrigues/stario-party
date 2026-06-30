@@ -210,22 +210,27 @@
   }
   .turn-pill {
     font-family: var(--display);
-    font-size: 22px;
-    background: var(--surface-2);
+    font-weight: 500;
+    font-size: 18px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
     padding: 8px 18px;
     border-radius: 999px;
     color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
   .turn-pill strong {
     color: var(--gold);
   }
   .now-playing {
     font-family: var(--display);
-    font-size: 44px;
+    font-weight: 600;
+    font-size: clamp(32px, 4.5vw, 48px);
     margin: 0;
-    color: var(--text);
     flex: 1 1 auto;
     text-align: center;
+    color: var(--text);
   }
   .possessive {
     color: var(--text-dim);
@@ -235,8 +240,9 @@
     display: inline-flex;
     gap: 8px;
     align-items: center;
-    padding: 6px 12px;
-    background: var(--surface-2);
+    padding: 7px 14px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
     border-radius: 999px;
   }
   .round-progress .dot {
@@ -273,19 +279,24 @@
   .quit-btn,
   .undo-btn {
     font-family: var(--display);
+    font-weight: 500;
     font-size: 16px;
-    padding: 8px 14px;
+    padding: 8px 15px;
     border-radius: 12px;
-    border: 2px solid var(--border);
-    background: var(--surface-2);
+    border: 1px solid var(--border);
+    background: var(--surface-1);
     color: var(--text-dim);
     cursor: pointer;
-    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    transition:
+      color 0.15s ease,
+      background 0.15s ease,
+      border-color 0.15s ease;
   }
   .log-toggle:hover,
   .undo-btn:not(:disabled):hover {
     color: var(--text);
-    border-color: var(--text-dim);
+    background: var(--surface-2);
+    border-color: var(--border-strong);
   }
   .undo-btn:disabled {
     opacity: 0.4;
@@ -377,25 +388,23 @@
   }
   .next-btn {
     font-family: var(--display);
-    font-size: 28px;
-    padding: 18px 32px;
-    border-radius: 20px;
+    font-weight: 600;
+    font-size: 26px;
+    padding: 16px 36px;
+    border-radius: 16px;
     border: none;
     cursor: pointer;
-    background: var(--accent-purple);
-    color: white;
-    box-shadow: 0 6px 0 #5b21b6;
+    color: #43320a;
+    background: var(--gold);
     transition:
-      transform 0.1s ease,
-      box-shadow 0.1s ease;
+      background 0.15s ease,
+      transform 0.08s ease;
   }
   .next-btn:hover {
-    transform: translateY(2px);
-    box-shadow: 0 4px 0 #5b21b6;
+    background: #ffd45e;
   }
   .next-btn:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0 #5b21b6;
+    transform: translateY(1px);
   }
 
   .log-panel {
