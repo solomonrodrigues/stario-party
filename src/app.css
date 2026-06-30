@@ -4,6 +4,16 @@
   font-display: swap;
 }
 
+/* Fredoka — the playful display face used across headings, buttons, and
+   player names via --display. Self-hosted variable font (weight axis
+   300–700) so it works offline and on GitHub Pages with no external request. */
+@font-face {
+  font-family: 'Fredoka';
+  src: url('./lib/assets/fonts/fredoka.ttf') format('truetype');
+  font-weight: 300 700;
+  font-display: swap;
+}
+
 :root {
   /* ---- Theatre palette (dark, neutral) -------------------------------- */
   /* The auditorium / stage is a dark charcoal room; red velvet curtains
