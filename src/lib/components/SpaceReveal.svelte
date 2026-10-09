@@ -2,6 +2,7 @@
   import { scale } from 'svelte/transition';
   import { backOut } from 'svelte/easing';
   import type { SpaceOutcome } from '../types';
+  import Icon from './Icon.svelte';
 
   interface Props {
     outcome: SpaceOutcome;
@@ -15,7 +16,7 @@
   style:--accent={outcome.accent}
   transition:scale={{ duration: 280, easing: backOut, start: 0.85 }}
 >
-  <span class="emoji">{outcome.emoji}</span>
+  <span class="icon"><Icon name={outcome.icon} /></span>
   <div class="text">
     <span class="label">{outcome.label} space</span>
     <span class="desc">{outcome.description}</span>
@@ -36,9 +37,10 @@
     background: color-mix(in srgb, var(--accent) 12%, var(--surface-1));
     text-align: left;
   }
-  .emoji {
+  .icon {
     font-size: 42px;
     line-height: 1;
+    color: var(--accent);
   }
   .text {
     display: flex;

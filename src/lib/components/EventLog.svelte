@@ -2,6 +2,7 @@
   import type { LogEntry, Player } from '../types';
   import { minigames } from '../stores/minigames.svelte';
   import Avatar from './Avatar.svelte';
+  import Icon from './Icon.svelte';
 
   interface Props {
     entries: LogEntry[];
@@ -55,7 +56,7 @@
             </span>
           {:else if entry.kind === 'minigame'}
             <span class="line">
-              <span class="icon" aria-hidden="true">🎲</span>
+              <span class="icon"><Icon name="dice" /></span>
               <span class="text">
                 <strong>{minigameName(entry.miniGameId)}</strong>
                 —
@@ -65,7 +66,7 @@
                   <span class="hl">
                     {entry.winnerIds.map((id) => playerName(id)).join(', ')}
                   </span>
-                  +{entry.coinsAwarded}🪙
+                  +{entry.coinsAwarded}<Icon name="coins" />
                 {/if}
               </span>
             </span>
@@ -90,7 +91,7 @@
             </span>
           {:else if entry.kind === 'chaos'}
             <span class="line">
-              <span class="icon" aria-hidden="true">⚡</span>
+              <span class="icon chaos"><Icon name="lightning" /></span>
               <span class="text">{entry.description}</span>
             </span>
           {/if}
@@ -151,6 +152,10 @@
   }
   .icon {
     font-size: 18px;
+    display: inline-flex;
+  }
+  .icon.chaos {
+    color: var(--gold);
   }
   strong {
     font-family: var(--display);

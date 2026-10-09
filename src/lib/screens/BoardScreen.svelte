@@ -11,6 +11,7 @@
   import EventLog from '../components/EventLog.svelte';
   import SpacePicker from '../components/SpacePicker.svelte';
   import SpaceReveal from '../components/SpaceReveal.svelte';
+  import Icon from '../components/Icon.svelte';
   import type { SpaceType } from '../types';
 
   let showLog = $state(false);
@@ -179,7 +180,7 @@
       onclick={dismissChaos}
       transition:scale={{ duration: 320, easing: backOut, start: 0.6 }}
     >
-      <span class="chaos-emoji">{toast.event.emoji}</span>
+      <span class="chaos-emoji"><Icon name={toast.event.icon} /></span>
       <span class="chaos-name">{toast.event.name}</span>
       <span class="chaos-desc">{toast.description}</span>
       <span class="chaos-dismiss">Tap to dismiss</span>
@@ -363,6 +364,7 @@
     grid-area: emoji;
     font-size: 48px;
     line-height: 1;
+    color: var(--gold);
   }
   .chaos-name {
     grid-area: name;

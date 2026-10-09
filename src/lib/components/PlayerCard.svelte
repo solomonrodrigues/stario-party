@@ -2,6 +2,7 @@
   import type { Player } from '../types';
   import Avatar from './Avatar.svelte';
   import CoinCounter from './CoinCounter.svelte';
+  import Icon from './Icon.svelte';
 
   interface Props {
     player: Player;
@@ -33,7 +34,7 @@
   </div>
   {#if active && affordableStar && onBuyStar}
     <button class="buy-star" type="button" onclick={onBuyStar}>
-      Buy star · {starCost}🪙
+      Buy star · {starCost} <Icon name="coins" />
     </button>
   {/if}
 </div>

@@ -1,3 +1,5 @@
+import type { IconName } from './icons';
+
 export type PlayerId = string;
 export type MiniGameId = string;
 
@@ -63,7 +65,7 @@ export type SpaceType =
 export interface SpaceOutcome {
   spaceType: SpaceType;
   label: string;
-  emoji: string;
+  icon: IconName;
   accent: string;
   description: string;
 }

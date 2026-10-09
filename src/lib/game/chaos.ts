@@ -1,10 +1,11 @@
 import { game } from '../stores/game.svelte';
 import { play } from '../sound/sfx';
+import type { IconName } from '../icons';
 
 export interface ChaosEvent {
   id: string;
   name: string;
-  emoji: string;
+  icon: IconName;
   // Mutates game state. Returns a human-readable description for the toast + log.
   trigger(): string;
 }
@@ -21,7 +22,7 @@ export const chaosEvents: ChaosEvent[] = [
   {
     id: 'lucky-strike',
     name: 'Lucky strike',
-    emoji: '🍀',
+    icon: 'clover',
     trigger() {
       const target = pickRandom(game.players);
       game.players = game.players.map((p) =>
@@ -33,7 +34,7 @@ export const chaosEvents: ChaosEvent[] = [
   {
     id: 'bandit',
     name: 'Bandit attack',
-    emoji: '🥷',
+    icon: 'robber',
     trigger() {
       const target = pickRandom(game.players);
       const loss = Math.min(5, target.coins);
@@ -48,7 +49,7 @@ export const chaosEvents: ChaosEvent[] = [
   {
     id: 'coin-tornado',
     name: 'Coin tornado',
-    emoji: '🌪️',
+    icon: 'tornado',
     trigger() {
       const total = game.players.reduce((s, p) => s + p.coins, 0);
       const share = Math.floor(total / game.players.length);
@@ -63,7 +64,7 @@ export const chaosEvents: ChaosEvent[] = [
   {
     id: 'wallet-swap',
     name: 'Wallet swap',
-    emoji: '🔄',
+    icon: 'swap',
     trigger() {
       if (game.players.length < 2) {
         return 'A swap was attempted — but nobody to swap with.';
@@ -83,7 +84,7 @@ export const chaosEvents: ChaosEvent[] = [
   {
     id: 'shooting-star',
     name: 'Shooting star',
-    emoji: '🌠',
+    icon: 'falling-star',
     trigger() {
       const target = pickRandom(game.players);
       game.players = game.players.map((p) =>
@@ -106,7 +107,7 @@ export function triggerRandomChaos(): {
   play('chaos');
   game.appendLog({
     kind: 'chaos',
-    description: `${event.emoji} ${description}`,
+    description,
     turn: game.currentTurn,
   });
   return { event, description };

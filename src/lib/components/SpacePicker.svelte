@@ -2,6 +2,7 @@
   import { fly } from 'svelte/transition';
   import type { SpaceType } from '../types';
   import { spaceDefs } from '../game/spaces';
+  import Icon from './Icon.svelte';
 
   interface Props {
     name: string;
@@ -21,7 +22,7 @@
         style:--accent={def.accent}
         onclick={() => onPick(def.id)}
       >
-        <span class="emoji">{def.emoji}</span>
+        <span class="icon"><Icon name={def.icon} /></span>
         <span class="label">{def.label}</span>
       </button>
     {/each}
@@ -73,9 +74,10 @@
   .space:active {
     transform: translateY(1px);
   }
-  .emoji {
+  .icon {
     font-size: 30px;
     line-height: 1;
+    color: var(--accent);
   }
   .label {
     font-family: var(--display);

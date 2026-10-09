@@ -1,4 +1,5 @@
 import type { Player, SpaceType } from '../types';
+import type { IconName } from '../icons';
 import { game } from '../stores/game.svelte';
 import { chaosEvents } from './chaos';
 
@@ -10,7 +11,7 @@ import { chaosEvents } from './chaos';
 export interface SpaceDef {
   id: SpaceType;
   label: string;
-  emoji: string;
+  icon: IconName;
   accent: string;
   resolve(active: Player): string;
 }
@@ -47,7 +48,7 @@ export const spaceDefs: SpaceDef[] = [
   {
     id: 'blue',
     label: 'Blue',
-    emoji: '🔵',
+    icon: 'dot',
     accent: '#3da5ff',
     resolve(active) {
       addCoins(active.id, 3);
@@ -57,7 +58,7 @@ export const spaceDefs: SpaceDef[] = [
   {
     id: 'red',
     label: 'Red',
-    emoji: '🔴',
+    icon: 'dot',
     accent: '#e2493b',
     resolve(active) {
       const loss = Math.min(3, active.coins);
@@ -70,20 +71,20 @@ export const spaceDefs: SpaceDef[] = [
   {
     id: 'event',
     label: 'Event',
-    emoji: '❓',
+    icon: 'question',
     accent: '#46c46e',
     resolve() {
       // Reuse the chaos machinery directly. We call the event's trigger()
       // (which mutates state + returns a description) rather than
       // triggerRandomChaos(), so the store owns the single undo/log step.
       const event = pickRandom(chaosEvents);
-      return `${event.emoji} ${event.trigger()}`;
+      return event.trigger();
     },
   },
   {
     id: 'bowser',
     label: 'Bowser',
-    emoji: '👹',
+    icon: 'dragon',
     accent: '#7a1f2b',
     resolve(active) {
       const outcomes: Array<() => string> = [
@@ -119,7 +120,7 @@ export const spaceDefs: SpaceDef[] = [
   {
     id: 'item',
     label: 'Item',
-    emoji: '🎁',
+    icon: 'present',
     accent: '#ff9f43',
     resolve(active) {
       const items: Array<{ name: string; coins: number }> = [
@@ -135,7 +136,7 @@ export const spaceDefs: SpaceDef[] = [
   {
     id: 'lucky',
     label: 'Lucky',
-    emoji: '🍀',
+    icon: 'clover',
     accent: '#2ecc71',
     resolve(active) {
       const outcomes: Array<() => string> = [
@@ -179,7 +180,7 @@ export const spaceDefs: SpaceDef[] = [
   {
     id: 'unlucky',
     label: 'Unlucky',
-    emoji: '💀',
+    icon: 'skull',
     accent: '#8e44ad',
     resolve(active) {
       const outcomes: Array<() => string> = [
@@ -219,7 +220,7 @@ export const spaceDefs: SpaceDef[] = [
   {
     id: 'vs',
     label: 'VS',
-    emoji: '⚔️',
+    icon: 'swords',
     accent: '#f7c948',
     resolve(active) {
       const rivals = others(active.id);

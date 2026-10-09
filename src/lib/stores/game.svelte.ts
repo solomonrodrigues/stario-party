@@ -245,7 +245,7 @@ class GameStore {
     this.lastOutcome = {
       spaceType: def.id,
       label: def.label,
-      emoji: def.emoji,
+      icon: def.icon,
       accent: def.accent,
       description,
     };

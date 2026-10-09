@@ -5,6 +5,7 @@
   import { playerPresets } from '../stores/playerPresets.svelte';
   import { starterMiniGames } from '../minigames/starter';
   import { confirmDialog } from '../stores/confirm.svelte';
+  import Icon from '../components/Icon.svelte';
 
   const TURN_OPTIONS = [10, 15, 20] as const;
   const COIN_OPTIONS = [10, 15, 20, 25, 30, 40] as const;
@@ -67,7 +68,7 @@
           class:selected={settings.value.coinsPerStar === n}
           onclick={() => setCoinsPerStar(n)}
         >
-          {n} 🪙
+          {n} <Icon name="coins" />
         </button>
       {/each}
     </div>
@@ -116,6 +117,13 @@
       Clear all saved data
     </button>
   </div>
+
+  <p class="hint credits">
+    Icons by Lorc and Delapouite from
+    <a href="https://game-icons.net/" target="_blank" rel="noreferrer">game-icons.net</a>,
+    licensed
+    <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">CC BY 3.0</a>.
+  </p>
 </section>
 
 <style>
@@ -167,6 +175,12 @@
     margin: 0 0 12px;
     color: var(--text-dim);
     font-size: 14px;
+  }
+  .credits {
+    text-align: center;
+  }
+  .credits a {
+    color: inherit;
   }
   .options {
     display: flex;
