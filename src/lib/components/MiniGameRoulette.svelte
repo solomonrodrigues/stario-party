@@ -82,7 +82,7 @@
   }
 
   onMount(() => {
-    play('roll');
+    play('roulette-start');
     // Wind back a touch, then launch — the anticipation beat before the spin.
     void offset.set(-WINDUP_PX, { duration: WINDUP_MS, easing: cubicOut });
     timers.push(
@@ -94,7 +94,7 @@
     timers.push(
       setTimeout(() => {
         phase = 'landed';
-        play('fanfare');
+        play('roulette-land');
         onLand(winner);
       }, WINDUP_MS + SPIN_MS + 40),
     );

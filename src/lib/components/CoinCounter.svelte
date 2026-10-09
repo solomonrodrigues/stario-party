@@ -33,8 +33,7 @@
       if (goingUp) {
         play(icon === 'coin' ? 'coin' : 'star');
       } else if (icon === 'coin') {
-        // The star sibling will fire 'star-purchase' for the combined event.
-        // Coin drops with no matching star increase still want a soft cue.
+        play('coin-loss');
       }
     }
   });

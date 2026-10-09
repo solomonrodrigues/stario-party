@@ -2,8 +2,15 @@ import { game } from '../stores/game.svelte';
 import { play } from '../sound/sfx';
 import type { IconName } from '../icons';
 
+export type ChaosId =
+  | 'lucky-strike'
+  | 'bandit'
+  | 'coin-tornado'
+  | 'wallet-swap'
+  | 'shooting-star';
+
 export interface ChaosEvent {
-  id: string;
+  id: ChaosId;
   name: string;
   icon: IconName;
   // Mutates game state. Returns a human-readable description for the toast + log.
@@ -104,7 +111,7 @@ export function triggerRandomChaos(): {
   game.pushUndo();
   const event = pickRandom(chaosEvents);
   const description = event.trigger();
-  play('chaos');
+  play(`chaos-${event.id}`);
   game.appendLog({
     kind: 'chaos',
     description,

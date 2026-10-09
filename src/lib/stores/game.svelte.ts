@@ -10,7 +10,7 @@ import type {
   SpaceType,
 } from '../types';
 import { spaceDef } from '../game/spaces';
-import { play, type SoundName } from '../sound/sfx';
+import { play } from '../sound/sfx';
 import { settings } from './settings.svelte';
 
 const SESSION_KEY = 'stario:session';
@@ -240,7 +240,6 @@ class GameStore {
     const def = spaceDef(spaceType);
     if (!def) return;
     this.pushUndo();
-    const before = player.coins + player.stars * 1000;
     const description = def.resolve(player);
     this.lastOutcome = {
       spaceType: def.id,
@@ -259,15 +258,7 @@ class GameStore {
         turn: this.currentTurn,
       },
     ];
-    // Sound by the active player's net change: stars trump coins.
-    const after = this.currentPlayer
-      ? this.currentPlayer.coins + this.currentPlayer.stars * 1000
-      : before;
-    let sound: SoundName = 'reveal';
-    if (after - before >= 1000) sound = 'star';
-    else if (after > before) sound = 'coin';
-    else if (after < before) sound = 'chaos';
-    play(sound);
+    play(`space-${def.id}`);
   }
 
   // Called from BoardScreen after a player has rolled and finished
