@@ -405,6 +405,11 @@
       </button>
     </div>
   </div>
+
+  <p class="disclaimer">
+    Stario Party is an unofficial fan project, not affiliated with or endorsed by Nintendo.
+    Mario and related names, characters and emblems are trademarks of Nintendo.
+  </p>
 </section>
 
 <style>
@@ -686,6 +691,13 @@
     justify-content: center;
     border-radius: 50%;
     border: 2px dashed var(--border);
+  }
+  .disclaimer {
+    margin: 8px auto 0;
+    max-width: 60ch;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
   }
   .char.upload:disabled {
     opacity: 0.5;
