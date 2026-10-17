@@ -14,6 +14,7 @@
   } from '../avatars/presets';
   import { resizeImage } from '../avatars/resizeImage';
   import Avatar from '../components/Avatar.svelte';
+  import Icon from '../components/Icon.svelte';
 
   const MIN_PLAYERS = 2;
   const MAX_PLAYERS = 4;
@@ -309,7 +310,7 @@
           title="Upload your own image"
           onclick={() => fileInput?.click()}
         >
-          <span class="upload-glyph">📷</span>
+          <span class="upload-glyph"><Icon name="camera" size="26px" /></span>
         </button>
         <input
           bind:this={fileInput}
@@ -683,7 +684,6 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
     border-radius: 50%;
     border: 2px dashed var(--border);
   }
