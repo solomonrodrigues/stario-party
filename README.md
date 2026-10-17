@@ -1,5 +1,7 @@
 # Stario Party
 
+<img src="docs/dice.webp" width="140" align="right" alt="The Stario Party 3D dice tumbling">
+
 A browser-based **host tool** for running an in-real-life party game in the
 style of Mario Party. One person runs the laptop (ideally cast to a TV), 2–4
 players gather around. The app handles turns, coins, stars, dice rolls, and
