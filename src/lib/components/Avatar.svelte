@@ -17,6 +17,7 @@
 
 <div
   class="avatar"
+  class:preset={avatar.kind === 'preset'}
   style:width="{size}px"
   style:height="{size}px"
   style:box-shadow={ring ? `0 0 0 4px ${ring}` : 'none'}
@@ -36,6 +37,9 @@
     display: inline-flex;
     flex: none;
     transition: box-shadow 0.2s ease;
+  }
+  .avatar.preset {
+    background: none;
   }
   .avatar :global(svg),
   .avatar img {
